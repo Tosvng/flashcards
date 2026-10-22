@@ -1,0 +1,38 @@
+services:
+  backend:
+    container_name: flashcards-backend
+    image: node:22-alpine     # stock image; dependencies ship inside dist/server
+    working_dir: /app
+    command: ["node", "server.js"]
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DB_PATH: /data/flashcards.db
+    env_file: .env            # must define JWT_SECRET (32+ chars)
+    volumes:
+      - ./dist/server:/app:ro
+      - ./data:/data          # flashcards.db lives here
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    container_name: flashcards
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8022:5000"
+    volumes:
+      - ./dist/web:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
