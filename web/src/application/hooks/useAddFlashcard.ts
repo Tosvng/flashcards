@@ -9,6 +9,9 @@ export function useAddFlashcard() {
   return useMutation({
     mutationFn: (card: NewFlashcard) => flashcards.add(card),
     // A new word changes how many new cards today's preview says will be added.
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: keys.session }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: keys.session });
+      void queryClient.invalidateQueries({ queryKey: keys.myWords });
+    },
   });
 }

@@ -56,4 +56,21 @@ export class SqliteFlashcardRepository implements FlashcardRepository {
     );
     return this.findVisible(userId, id)!;
   }
+
+  findOwned(userId: number): Flashcard[] {
+    const rows = this.db
+      .prepare('SELECT * FROM flashcards WHERE owner_user_id = ? ORDER BY sort_order')
+      .all(userId) as Row[];
+    return rows.map(toFlashcard);
+  }
+
+  update(userId: number, flashcardId: number, card: NewFlashcard): Flashcard | null {
+    const { changes } = this.db
+      .prepare(
+        `UPDATE flashcards SET french_text = ?, english_translation = ?, photo_url = ?, description = ?, phonetic_spelling = ?
+         WHERE flashcard_id = ? AND owner_user_id = ?`,
+      )
+      .run(card.frenchText, card.englishTranslation, card.photoUrl, card.description, card.phoneticSpelling, flashcardId, userId);
+    return changes > 0 ? this.findVisible(userId, flashcardId) : null;
+  }
 }

@@ -229,3 +229,6 @@ h2.title { margin: 0; font-size: 2.25rem; line-height: 1.08; font-weight: 750; l
 }
 @keyframes arm { to { pointer-events: auto; } }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.word-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.word-row { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-radius: 16px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); color: inherit; text-decoration: none; }

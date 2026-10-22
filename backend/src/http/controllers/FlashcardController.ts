@@ -11,6 +11,15 @@ export class FlashcardController {
     res.json(this.flashcards.get(userIdOf(req), id));
   };
 
+  list = (req: Request, res: Response): void => {
+    res.json(this.flashcards.listOwned(userIdOf(req)));
+  };
+
+  update = (req: Request, res: Response): void => {
+    const { id } = req.params as unknown as { id: number };
+    res.json(this.flashcards.update(userIdOf(req), id, req.body as NewFlashcard));
+  };
+
   create = (req: Request, res: Response): void => {
     res.status(201).json(this.flashcards.add(userIdOf(req), req.body as NewFlashcard));
   };

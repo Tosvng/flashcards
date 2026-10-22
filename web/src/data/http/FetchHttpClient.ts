@@ -32,7 +32,11 @@ export class FetchHttpClient implements HttpClient {
     return this.request<T>('POST', path, body ?? {});
   }
 
-  private async request<T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> {
+  put<T>(path: string, body?: unknown): Promise<T> {
+    return this.request<T>('PUT', path, body ?? {});
+  }
+
+  private async request<T>(method: 'GET' | 'POST' | 'PUT', path: string, body?: unknown): Promise<T> {
     const token = await this.options.tokens.get().catch(() => null);
     const headers: Record<string, string> = { Accept: 'application/json' };
     if (body !== undefined) headers['Content-Type'] = 'application/json';

@@ -214,3 +214,30 @@ describe('flashcards & isolation', () => {
     expect(unknown.status).toBe(404);
   });
 });
+
+describe('editing words', () => {
+  const body = { frenchText: 'chat', englishTranslation: 'cat', photoUrl: 'https://img/cat.png', description: 'a pet that purrs' };
+
+  it('lists and edits the user\'s own words', async () => {
+    const token = await register();
+    const created = (await request(app).post('/api/flashcards').set(auth(token)).send(body)).body;
+    const list = await request(app).get('/api/flashcards').set(auth(token));
+    expect(list.body.map((c: { frenchText: string }) => c.frenchText)).toEqual(['chat']);
+
+    const res = await request(app).put(`/api/flashcards/${created.flashcardId}`).set(auth(token)).send({ ...body, frenchText: 'chaton' });
+    expect(res.status).toBe(200);
+    expect(res.body.frenchText).toBe('chaton');
+    expect((await request(app).get(`/api/flashcards/${created.flashcardId}`).set(auth(token))).body.frenchText).toBe('chaton');
+  });
+
+  it('hides other users\' and shared words, and validates input', async () => {
+    const owner = await register();
+    const other = await register('b@example.com');
+    const created = (await request(app).post('/api/flashcards').set(auth(owner)).send(body)).body;
+    expect((await request(app).put(`/api/flashcards/${created.flashcardId}`).set(auth(other)).send(body)).status).toBe(404);
+    expect((await request(app).put('/api/flashcards/1').set(auth(owner)).send(body)).status).toBe(404);
+    expect((await request(app).put(`/api/flashcards/${created.flashcardId}`).set(auth(owner)).send({ ...body, frenchText: ' ' })).status).toBe(400);
+    expect((await request(app).put(`/api/flashcards/${created.flashcardId}`).send(body)).status).toBe(401);
+    expect((await request(app).get('/api/flashcards').set(auth(other))).body).toEqual([]);
+  });
+});

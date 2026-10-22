@@ -64,6 +64,17 @@ describe('SqliteFlashcardRepository', () => {
     expect(flashcards.findManyVisible(u2, [1, mine.flashcardId]).map((c) => c.frenchText)).toEqual(['shared']);
     expect(flashcards.findManyVisible(u1, [])).toEqual([]);
   });
+
+  it('lists and updates only the owner\'s cards', () => {
+    addShared('shared', 1);
+    const mine = flashcards.create(u1, card('mine'));
+    expect(flashcards.findOwned(u1).map((c) => c.frenchText)).toEqual(['mine']);
+    expect(flashcards.findOwned(u2)).toEqual([]);
+    expect(flashcards.update(u1, mine.flashcardId, card('edited'))?.frenchText).toBe('edited');
+    expect(flashcards.update(u2, mine.flashcardId, card('hacked'))).toBeNull();
+    expect(flashcards.update(u1, 1, card('hacked'))).toBeNull();
+    expect(flashcards.findVisible(u1, mine.flashcardId)?.frenchText).toBe('edited');
+  });
 });
 
 describe('SqliteCardStateRepository', () => {

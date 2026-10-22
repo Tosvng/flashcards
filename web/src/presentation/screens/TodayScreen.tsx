@@ -62,6 +62,7 @@ export function TodayScreen() {
         </Button>
       ) : null}
       <Button variant="secondary" onClick={() => navigate('/add')}>Add a word</Button>
+      <Button variant="secondary" onClick={() => navigate('/words')}>My words</Button>
       <Button variant="secondary" onClick={() => void signOut()}>Sign out</Button>
     </AppShell>
   );
