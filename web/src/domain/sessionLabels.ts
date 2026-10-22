@@ -8,7 +8,7 @@ export function levelsLabel(levels: readonly Level[]): string {
 export function sessionHeadline(summary: SessionSummary): string {
   if (summary.status === 'complete') return 'All done for today';
   if (summary.isCatchUp) return 'Catch-up day';
-  return `Day ${summary.cycleDay} of 64`;
+  return `Day ${summary.cycleDay}`;
 }
 
 export function resultMessage(result: ReviewResult): string {

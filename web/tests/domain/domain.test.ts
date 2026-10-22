@@ -130,7 +130,7 @@ describe('sessionLabels', () => {
   });
   it('writes the headline', () => {
     expect(sessionHeadline(summary)).toBe('Catch-up day');
-    expect(sessionHeadline({ ...summary, isCatchUp: false })).toBe('Day 59 of 64');
+    expect(sessionHeadline({ ...summary, isCatchUp: false })).toBe('Day 59');
     expect(sessionHeadline({ ...summary, status: 'complete' })).toBe('All done for today');
   });
   it('explains results', () => {

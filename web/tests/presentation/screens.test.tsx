@@ -31,7 +31,7 @@ describe('TodayScreen', () => {
   it('previews a normal day and starts the review', async () => {
     const services = createFakeServices();
     open(services);
-    expect(await screen.findByRole('heading', { name: 'Day 1 of 64' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Day 1' })).toBeInTheDocument();
     expect(screen.getByText('Levels 2 · 1')).toBeInTheDocument();
     expect(screen.getByText('10 new cards will be added')).toBeInTheDocument();
     expect(screen.queryByText('You missed a day')).not.toBeInTheDocument();
@@ -94,7 +94,7 @@ describe('TodayScreen', () => {
     open(services);
     expect(await screen.findByRole('alert')).toHaveTextContent('Server is down');
     await userEvent.setup().click(screen.getByRole('button', { name: 'Try again' }));
-    expect(await screen.findByRole('heading', { name: 'Day 1 of 64' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Day 1' })).toBeInTheDocument();
   });
 
   it('signs out, clearing the stored token', async () => {
@@ -331,7 +331,7 @@ describe('route guards (AppRoutes)', () => {
     const services = createFakeServices();
     await services.tokenStore.set('t');
     app('/login', services);
-    expect(await screen.findByRole('heading', { name: 'Day 1 of 64' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Day 1' })).toBeInTheDocument();
   });
 
   it('sends unknown URLs to Today (and then to login if signed out)', async () => {
@@ -343,7 +343,7 @@ describe('route guards (AppRoutes)', () => {
     const services = createFakeServices();
     await services.tokenStore.set('t');
     app('/', services);
-    await screen.findByRole('heading', { name: 'Day 1 of 64' });
+    await screen.findByRole('heading', { name: 'Day 1' });
     services.signal.notify();
     expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
     expect(await services.tokenStore.get()).toBeNull();
