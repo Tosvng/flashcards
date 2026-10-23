@@ -2,9 +2,20 @@ import { useEffect, useState } from 'react';
 
 const synth = typeof window !== 'undefined' ? window.speechSynthesis : undefined;
 
-function hasFrenchVoice(): boolean {
-  return !!synth && synth.getVoices().some((v) => v.lang.toLowerCase().startsWith('fr'));
+const isFrench = (v: SpeechSynthesisVoice) => v.lang.toLowerCase().startsWith('fr');
+
+/** Prefers an on-device fr-FR voice: network voices can drop out mid-session and fall back to the default (English) one. */
+function pickFrenchVoice(): SpeechSynthesisVoice | null {
+  if (!synth) return null;
+  const french = synth.getVoices().filter(isFrench);
+  const rank = (v: SpeechSynthesisVoice) => (v.localService ? 0 : 2) + (v.lang.replace('_', '-').toLowerCase() === 'fr-fr' ? 0 : 1);
+  return french.sort((a, b) => rank(a) - rank(b))[0] ?? null;
 }
+
+const hasFrenchVoice = () => pickFrenchVoice() !== null;
+
+// Chrome can garbage-collect an utterance mid-speech, which cuts it off or changes its voice.
+let current: SpeechSynthesisUtterance | null = null;
 
 /** Speaks the French word with the browser's text-to-speech. Renders nothing when no French voice is available. */
 export function PlayPronunciationButton({ text }: { text: string }) {
@@ -23,8 +34,9 @@ export function PlayPronunciationButton({ text }: { text: string }) {
   const play = () => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'fr-FR';
-    utterance.voice = synth.getVoices().find((v) => v.lang.toLowerCase().startsWith('fr')) ?? null;
-    synth.cancel();
+    utterance.voice = pickFrenchVoice();
+    if (synth.speaking || synth.pending) synth.cancel();
+    current = utterance;
     synth.speak(utterance);
   };
 
