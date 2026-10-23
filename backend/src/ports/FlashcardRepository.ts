@@ -5,4 +5,8 @@ export interface FlashcardRepository {
   findVisible(userId: number, flashcardId: number): Flashcard | null;
   findManyVisible(userId: number, flashcardIds: number[]): Flashcard[];
   create(userId: number, card: NewFlashcard): Flashcard;
+  /** Cards created by `userId`, oldest first. */
+  findOwned(userId: number): Flashcard[];
+  /** Updates a card only if `userId` owns it; returns null otherwise. */
+  update(userId: number, flashcardId: number, card: NewFlashcard): Flashcard | null;
 }

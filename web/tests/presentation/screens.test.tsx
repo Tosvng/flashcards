@@ -4,6 +4,8 @@ import { MemoryRouter, Route, Routes } from 'react-router';
 import { describe, expect, it, vi, type Mock } from 'vitest';
 import { AppRoutes } from '../../src/app/AppRoutes';
 import { ApiError } from '../../src/domain/errors';
+import { EditCardScreen } from '../../src/presentation/screens/EditCardScreen';
+import { MyWordsScreen } from '../../src/presentation/screens/MyWordsScreen';
 import { AddCardScreen } from '../../src/presentation/screens/AddCardScreen';
 import { LoginScreen } from '../../src/presentation/screens/LoginScreen';
 import { RegisterScreen } from '../../src/presentation/screens/RegisterScreen';
@@ -313,6 +315,75 @@ describe('AddCardScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Add word' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('photoUrl: Invalid URL');
     expect(screen.getByLabelText('English translation')).toHaveValue('cat');
+  });
+});
+
+describe('MyWordsScreen and EditCardScreen', () => {
+  const chat = {
+    flashcardId: 5, ownerUserId: 1, sortOrder: 1, createdAt: '', frenchText: 'chat', englishTranslation: 'cat',
+    photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: '/ʃa/',
+  };
+
+  it('lists the user\'s words and shows an empty state', async () => {
+    const services = createFakeServices();
+    (services.flashcards.listMine as Mock).mockResolvedValue([chat]);
+    renderAt('/words', <MyWordsScreen />, services);
+    expect(await screen.findByRole('link', { name: 'Edit chat' })).toHaveAttribute('href', '/words/5');
+  });
+
+  it('says so when there are no words', async () => {
+    renderAt('/words', <MyWordsScreen />, createFakeServices());
+    expect(await screen.findByText(/haven't added any words/)).toBeInTheDocument();
+  });
+
+  function openEdit(services: FakeServices) {
+    (services.flashcards.listMine as Mock).mockResolvedValue([chat]);
+    const { wrapper } = makeWrapper(services, { auth: true, route: '/words/5' });
+    render(
+      <Routes>
+        <Route path="/words/:id" element={<EditCardScreen />} />
+        <Route path="/words" element={<div>PAGE /words</div>} />
+      </Routes>,
+      { wrapper },
+    );
+  }
+
+  it('prefills the form, saves the change and returns to the list', async () => {
+    const services = createFakeServices();
+    (services.flashcards.update as Mock).mockResolvedValue(chat);
+    openEdit(services);
+    const french = await screen.findByLabelText('French word');
+    expect(french).toHaveValue('chat');
+    expect(screen.getByLabelText('Phonetic spelling (optional)')).toHaveValue('/ʃa/');
+    const user = userEvent.setup();
+    await user.clear(french);
+    await user.type(french, 'chaton');
+    await user.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(await screen.findByText('PAGE /words')).toBeInTheDocument();
+    expect(services.flashcards.update).toHaveBeenCalledWith(5, {
+      frenchText: 'chaton', englishTranslation: 'cat', photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: '/ʃa/',
+    });
+  });
+
+  it('validates and shows server errors without leaving', async () => {
+    const services = createFakeServices();
+    (services.flashcards.update as Mock).mockRejectedValue(new ApiError(404, 'NOT_FOUND', 'Flashcard not found'));
+    openEdit(services);
+    const user = userEvent.setup();
+    await user.clear(await screen.findByLabelText('English translation'));
+    await user.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(await screen.findByText('Enter the English translation')).toBeInTheDocument();
+    expect(services.flashcards.update).not.toHaveBeenCalled();
+    await user.type(screen.getByLabelText('English translation'), 'cat');
+    await user.click(screen.getByRole('button', { name: 'Save changes' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Flashcard not found');
+  });
+
+  it('handles an unknown word', async () => {
+    const services = createFakeServices();
+    const { wrapper } = makeWrapper(services, { auth: true, route: '/words/99' });
+    render(<Routes><Route path="/words/:id" element={<EditCardScreen />} /></Routes>, { wrapper });
+    expect(await screen.findByText(/could not be found/)).toBeInTheDocument();
   });
 });
 

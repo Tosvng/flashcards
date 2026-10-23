@@ -2,7 +2,9 @@ import { Navigate, Outlet, Route, Routes } from 'react-router';
 import { useAuth } from '../application/auth/AuthProvider';
 import { LoadingView } from '../presentation/components/StateViews';
 import { AddCardScreen } from '../presentation/screens/AddCardScreen';
+import { EditCardScreen } from '../presentation/screens/EditCardScreen';
 import { LoginScreen } from '../presentation/screens/LoginScreen';
+import { MyWordsScreen } from '../presentation/screens/MyWordsScreen';
 import { RegisterScreen } from '../presentation/screens/RegisterScreen';
 import { ReviewScreen } from '../presentation/screens/ReviewScreen';
 import { SessionCompleteScreen } from '../presentation/screens/SessionCompleteScreen';
@@ -34,6 +36,8 @@ export function AppRoutes() {
         <Route path="/review" element={<ReviewScreen />} />
         <Route path="/done" element={<SessionCompleteScreen />} />
         <Route path="/add" element={<AddCardScreen />} />
+        <Route path="/words" element={<MyWordsScreen />} />
+        <Route path="/words/:id" element={<EditCardScreen />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

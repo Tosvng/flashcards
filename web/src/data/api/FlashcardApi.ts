@@ -8,4 +8,12 @@ export class FlashcardApi implements FlashcardGateway {
   add(card: NewFlashcard): Promise<Flashcard> {
     return this.http.post('/api/flashcards', card);
   }
+
+  listMine(): Promise<Flashcard[]> {
+    return this.http.get('/api/flashcards');
+  }
+
+  update(id: number, card: NewFlashcard): Promise<Flashcard> {
+    return this.http.put(`/api/flashcards/${id}`, card);
+  }
 }

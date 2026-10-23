@@ -31,7 +31,9 @@ export function buildRouter(c: Controllers, tokens: TokenService): Router {
   router.get('/decks/daily', c.deck.daily);
   router.post('/review/reveal', validate({ body: revealBody }), c.review.reveal);
   router.post('/review', validate({ body: reviewBody }), c.review.submit);
+  router.get('/flashcards', c.flashcard.list);
   router.get('/flashcards/:id', validate({ params: idParams }), c.flashcard.get);
+  router.put('/flashcards/:id', validate({ params: idParams, body: createFlashcardBody }), c.flashcard.update);
   router.post('/flashcards', validate({ body: createFlashcardBody }), c.flashcard.create);
 
   return router;
