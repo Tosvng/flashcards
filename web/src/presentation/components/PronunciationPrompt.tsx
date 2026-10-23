@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { RevealResult } from '../../domain/types';
 import { Button } from './Button';
+import { PlayPronunciationButton } from './PlayPronunciationButton';
 import { CheckMark, CrossMark } from './Marks';
 
 /** The reveal: spelling verdict, the correct word, its phonetics, and a note when only an accent was missed. */
@@ -18,6 +19,7 @@ export function AnswerReveal({ reveal, accentHint }: { reveal: RevealResult; acc
       {reveal.phoneticSpelling ? (
         <p className="phonetic" aria-label={`Phonetic spelling: ${reveal.phoneticSpelling}`}>{reveal.phoneticSpelling}</p>
       ) : null}
+      <PlayPronunciationButton text={reveal.correctSpelling} />
       {accentHint ? <p className="accent-hint">{accentHint}</p> : null}
     </section>
   );
