@@ -34,10 +34,21 @@ export function PlayPronunciationButton({ text }: { text: string }) {
   const play = () => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'fr-FR';
-    utterance.voice = pickFrenchVoice();
-    if (synth.speaking || synth.pending) synth.cancel();
+    const voice = pickFrenchVoice();
+    if (voice) utterance.voice = voice;
     current = utterance;
-    synth.speak(utterance);
+    const speak = () => {
+      // iOS (Safari and home-screen apps) can be left paused by an earlier utterance, which silences every later one.
+      if (synth.paused) synth.resume();
+      synth.speak(utterance);
+    };
+    if (synth.speaking || synth.pending) {
+      synth.cancel();
+      // iOS drops a speak() issued in the same tick as cancel().
+      setTimeout(speak, 60);
+    } else {
+      speak();
+    }
   };
 
   return (
