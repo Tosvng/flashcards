@@ -23,6 +23,11 @@ export class FlashcardService {
     return card;
   }
 
+  /** Deletes a word the user added. Shared cards and other users' cards read as not found. */
+  remove(userId: number, flashcardId: number): void {
+    if (!this.flashcards.delete(userId, flashcardId)) throw new NotFoundError('Flashcard not found');
+  }
+
   /** Adds a private card owned by the user; it joins their New pool implicitly. */
   add(userId: number, data: NewFlashcard): Flashcard {
     return this.flashcards.create(userId, data);

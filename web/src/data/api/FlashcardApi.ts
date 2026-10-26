@@ -16,4 +16,8 @@ export class FlashcardApi implements FlashcardGateway {
   update(id: number, card: NewFlashcard): Promise<Flashcard> {
     return this.http.put(`/api/flashcards/${id}`, card);
   }
+
+  remove(id: number): Promise<void> {
+    return this.http.delete(`/api/flashcards/${id}`);
+  }
 }

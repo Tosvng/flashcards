@@ -51,6 +51,12 @@ export class FakeFlashcardRepository implements FlashcardRepository {
     this.cards[i] = { ...this.cards[i]!, ...card };
     return this.cards[i]!;
   }
+  delete(userId: number, id: number): boolean {
+    const i = this.cards.findIndex((c) => c.flashcardId === id && c.ownerUserId === userId);
+    if (i < 0) return false;
+    this.cards.splice(i, 1);
+    return true;
+  }
   /** Test helper: add a shared library card. */
   addShared(frenchText: string, phonetic: string | null = null): Flashcard {
     const created: Flashcard = {

@@ -113,7 +113,7 @@ describe('FetchHttpClient', () => {
 });
 
 describe('API classes hit the right endpoints', () => {
-  const mocks = { get: vi.fn(async () => ({})), post: vi.fn(async () => ({})), put: vi.fn(async () => ({})) };
+  const mocks = { get: vi.fn(async () => ({})), post: vi.fn(async () => ({})), put: vi.fn(async () => ({})), delete: vi.fn(async () => undefined) };
   const http = mocks as unknown as HttpClient;
   beforeEach(() => vi.clearAllMocks());
 
@@ -150,6 +150,8 @@ describe('API classes hit the right endpoints', () => {
     expect(mocks.get).toHaveBeenCalledWith('/api/flashcards');
     await new FlashcardApi(http).update(7, card);
     expect(mocks.put).toHaveBeenCalledWith('/api/flashcards/7', card);
+    await new FlashcardApi(http).remove(7);
+    expect(mocks.delete).toHaveBeenCalledWith('/api/flashcards/7');
   });
 });
 

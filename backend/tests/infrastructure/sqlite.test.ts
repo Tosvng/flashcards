@@ -77,6 +77,21 @@ describe('SqliteFlashcardRepository', () => {
   });
 });
 
+describe('SqliteFlashcardRepository delete', () => {
+  it('deletes only the owner\'s card and cascades its card state', () => {
+    addShared('shared', 1);
+    const mine = flashcards.create(u1, card('mine'));
+    states.introduceFromPool(u1, 10, '2026-01-01');
+    expect(states.get(u1, mine.flashcardId)).not.toBeNull();
+    expect(flashcards.delete(u2, mine.flashcardId)).toBe(false);
+    expect(flashcards.delete(u1, 1)).toBe(false);
+    expect(flashcards.delete(u1, mine.flashcardId)).toBe(true);
+    expect(flashcards.findVisible(u1, mine.flashcardId)).toBeNull();
+    expect(states.get(u1, mine.flashcardId)).toBeNull();
+    expect(flashcards.findVisible(u1, 1)).not.toBeNull();
+  });
+});
+
 describe('SqliteCardStateRepository', () => {
   beforeEach(() => {
     for (let i = 1; i <= 25; i++) addShared(`w${i}`, i);

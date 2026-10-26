@@ -379,6 +379,29 @@ describe('MyWordsScreen and EditCardScreen', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Flashcard not found');
   });
 
+  it('asks for confirmation before deleting, then returns to the list', async () => {
+    const services = createFakeServices();
+    openEdit(services);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Delete word' }));
+    await user.click(screen.getByRole('button', { name: 'Keep word' }));
+    expect(services.flashcards.remove).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Delete word' }));
+    await user.click(screen.getByRole('button', { name: 'Yes, delete' }));
+    expect(await screen.findByText('PAGE /words')).toBeInTheDocument();
+    expect(services.flashcards.remove).toHaveBeenCalledWith(5);
+  });
+
+  it('shows an error and stays when deleting fails', async () => {
+    const services = createFakeServices();
+    (services.flashcards.remove as Mock).mockRejectedValue(new ApiError(404, 'NOT_FOUND', 'Flashcard not found'));
+    openEdit(services);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Delete word' }));
+    await user.click(screen.getByRole('button', { name: 'Yes, delete' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Flashcard not found');
+  });
+
   it('handles an unknown word', async () => {
     const services = createFakeServices();
     const { wrapper } = makeWrapper(services, { auth: true, route: '/words/99' });

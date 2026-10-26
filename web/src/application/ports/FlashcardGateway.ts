@@ -5,4 +5,5 @@ export interface FlashcardGateway {
   /** The words the user added, oldest first. */
   listMine(): Promise<Flashcard[]>;
   update(id: number, card: NewFlashcard): Promise<Flashcard>;
+  remove(id: number): Promise<void>;
 }

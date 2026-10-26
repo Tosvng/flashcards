@@ -36,7 +36,11 @@ export class FetchHttpClient implements HttpClient {
     return this.request<T>('PUT', path, body ?? {});
   }
 
-  private async request<T>(method: 'GET' | 'POST' | 'PUT', path: string, body?: unknown): Promise<T> {
+  delete<T = void>(path: string): Promise<T> {
+    return this.request<T>('DELETE', path);
+  }
+
+  private async request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T> {
     const token = await this.options.tokens.get().catch(() => null);
     const headers: Record<string, string> = { Accept: 'application/json' };
     if (body !== undefined) headers['Content-Type'] = 'application/json';

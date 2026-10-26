@@ -73,4 +73,11 @@ export class SqliteFlashcardRepository implements FlashcardRepository {
       .run(card.frenchText, card.englishTranslation, card.photoUrl, card.description, card.phoneticSpelling, flashcardId, userId);
     return changes > 0 ? this.findVisible(userId, flashcardId) : null;
   }
+
+  delete(userId: number, flashcardId: number): boolean {
+    const { changes } = this.db
+      .prepare('DELETE FROM flashcards WHERE flashcard_id = ? AND owner_user_id = ?')
+      .run(flashcardId, userId);
+    return changes > 0;
+  }
 }

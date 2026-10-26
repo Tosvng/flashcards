@@ -9,4 +9,6 @@ export interface FlashcardRepository {
   findOwned(userId: number): Flashcard[];
   /** Updates a card only if `userId` owns it; returns null otherwise. */
   update(userId: number, flashcardId: number, card: NewFlashcard): Flashcard | null;
+  /** Deletes a card only if `userId` owns it; returns whether anything was deleted. Card state and review history cascade. */
+  delete(userId: number, flashcardId: number): boolean;
 }

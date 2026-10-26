@@ -92,7 +92,7 @@ export function createFakeServices(over: Partial<Services> = {}): FakeServices {
         passed: true, newLevel: 2 as const, sessionComplete: true, currentLevel: null,
       })),
     },
-    flashcards: { add: vi.fn(), listMine: vi.fn(async () => []), update: vi.fn() },
+    flashcards: { add: vi.fn(), listMine: vi.fn(async () => []), update: vi.fn(), remove: vi.fn(async () => undefined) },
     tokens: tokenStore,
     sessionExpired: signal,
     signal,

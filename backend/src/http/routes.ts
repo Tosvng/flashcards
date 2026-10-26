@@ -34,6 +34,7 @@ export function buildRouter(c: Controllers, tokens: TokenService): Router {
   router.get('/flashcards', c.flashcard.list);
   router.get('/flashcards/:id', validate({ params: idParams }), c.flashcard.get);
   router.put('/flashcards/:id', validate({ params: idParams, body: createFlashcardBody }), c.flashcard.update);
+  router.delete('/flashcards/:id', validate({ params: idParams }), c.flashcard.remove);
   router.post('/flashcards', validate({ body: createFlashcardBody }), c.flashcard.create);
 
   return router;

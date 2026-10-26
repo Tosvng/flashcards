@@ -230,6 +230,18 @@ describe('editing words', () => {
     expect((await request(app).get(`/api/flashcards/${created.flashcardId}`).set(auth(token))).body.frenchText).toBe('chaton');
   });
 
+  it('deletes a word, and only the owner can', async () => {
+    const token = await register();
+    const other = await register('b@example.com');
+    const created = (await request(app).post('/api/flashcards').set(auth(token)).send(body)).body;
+    expect((await request(app).delete(`/api/flashcards/${created.flashcardId}`).set(auth(other))).status).toBe(404);
+    expect((await request(app).delete(`/api/flashcards/${created.flashcardId}`)).status).toBe(401);
+    expect((await request(app).delete(`/api/flashcards/${created.flashcardId}`).set(auth(token))).status).toBe(204);
+    expect((await request(app).get('/api/flashcards').set(auth(token))).body).toEqual([]);
+    expect((await request(app).delete(`/api/flashcards/${created.flashcardId}`).set(auth(token))).status).toBe(404);
+    expect((await request(app).delete('/api/flashcards/1').set(auth(token))).status).toBe(404);
+  });
+
   it('hides other users\' and shared words, and validates input', async () => {
     const owner = await register();
     const other = await register('b@example.com');
