@@ -331,6 +331,26 @@ describe('MyWordsScreen and EditCardScreen', () => {
     expect(await screen.findByRole('link', { name: 'Edit chat' })).toHaveAttribute('href', '/words/5');
   });
 
+  it('filters words by search and sorts them alphabetically', async () => {
+    const user = userEvent.setup();
+    const services = createFakeServices();
+    const word = (id: number, fr: string, en: string) => ({ ...chat, flashcardId: id, frenchText: fr, englishTranslation: en });
+    (services.flashcards.listMine as Mock).mockResolvedValue([word(1, 'zèbre', 'zebra'), word(2, 'chat', 'cat'), word(3, 'arbre', 'tree')]);
+    renderAt('/words', <MyWordsScreen />, services);
+    await screen.findByRole('link', { name: 'Edit chat' });
+    const order = () => screen.getAllByRole('link').filter((l) => l.className === 'word-row').map((l) => l.getAttribute('aria-label'));
+    expect(order()).toEqual(['Edit zèbre', 'Edit chat', 'Edit arbre']);
+    await user.click(screen.getByRole('button', { name: 'Sort A to Z' }));
+    expect(order()).toEqual(['Edit arbre', 'Edit chat', 'Edit zèbre']);
+    await user.click(screen.getByRole('button', { name: 'Sort Z to A' }));
+    expect(order()).toEqual(['Edit zèbre', 'Edit chat', 'Edit arbre']);
+    await user.type(screen.getByLabelText('Search words'), 'ar');
+    expect(order()).toEqual(['Edit arbre']);
+    await user.clear(screen.getByLabelText('Search words'));
+    await user.type(screen.getByLabelText('Search words'), 'qqq');
+    expect(screen.getByText(/No words match/)).toBeInTheDocument();
+  });
+
   it('says so when there are no words', async () => {
     renderAt('/words', <MyWordsScreen />, createFakeServices());
     expect(await screen.findByText(/haven't added any words/)).toBeInTheDocument();
