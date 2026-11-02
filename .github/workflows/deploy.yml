@@ -12,10 +12,22 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest   # x86_64, matches the server (build.sh defaults to linux/amd64)
+    # Each value may be set as an Actions variable or a secret.
     env:
-      SSH_TARGET: ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}
-      SSH_OPTS: -i ~/.ssh/deploy_key -p ${{ vars.DEPLOY_PORT }}
+      DEPLOY_HOST: ${{ vars.DEPLOY_HOST || secrets.DEPLOY_HOST }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT || secrets.DEPLOY_PORT }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER || secrets.DEPLOY_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || secrets.DEPLOY_PATH }}
+      APP_PORT: ${{ vars.APP_PORT || secrets.APP_PORT }}
     steps:
+      - name: Check deploy settings
+        run: |
+          for v in DEPLOY_HOST DEPLOY_PORT DEPLOY_USER DEPLOY_PATH APP_PORT; do
+            [ -n "${!v}" ] || { echo "::error::$v is not set (add it under Settings > Secrets and variables > Actions)"; exit 1; }
+          done
+          echo "SSH_TARGET=$DEPLOY_USER@$DEPLOY_HOST" >> "$GITHUB_ENV"
+          echo "SSH_OPTS=-i $HOME/.ssh/deploy_key -p $DEPLOY_PORT" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -44,9 +56,9 @@ jobs:
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
 
       - name: Upload dist
-        run: rsync -a --delete -e "ssh $SSH_OPTS" dist/ "$SSH_TARGET:${{ vars.DEPLOY_PATH }}/dist/"
+        run: rsync -a --delete -e "ssh $SSH_OPTS" dist/ "$SSH_TARGET:$DEPLOY_PATH/dist/"
 
       - name: Restart backend and check health
         run: |
           ssh $SSH_OPTS "$SSH_TARGET" \
-            "cd '${{ vars.DEPLOY_PATH }}' && docker compose restart backend && sleep 5 && curl -fsS localhost:${{ vars.APP_PORT }}/health"
+            "cd '$DEPLOY_PATH' && docker compose restart backend && sleep 5 && curl -fsS localhost:$APP_PORT/health"
