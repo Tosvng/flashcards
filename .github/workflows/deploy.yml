@@ -1,0 +1,52 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest   # x86_64, matches the server (build.sh defaults to linux/amd64)
+    env:
+      SSH_TARGET: ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}
+      SSH_OPTS: -i ~/.ssh/deploy_key -p ${{ vars.DEPLOY_PORT }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@10.20.0 --activate
+
+      - name: Test
+        run: |
+          (cd backend && pnpm install --frozen-lockfile && pnpm typecheck && pnpm test)
+          (cd web && pnpm install --frozen-lockfile && pnpm test)
+
+      - name: Build
+        run: ./build.sh
+
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+
+      - name: Upload dist
+        run: rsync -a --delete -e "ssh $SSH_OPTS" dist/ "$SSH_TARGET:${{ vars.DEPLOY_PATH }}/dist/"
+
+      - name: Restart backend and check health
+        run: |
+          ssh $SSH_OPTS "$SSH_TARGET" \
+            "cd '${{ vars.DEPLOY_PATH }}' && docker compose restart backend && sleep 5 && curl -fsS localhost:${{ vars.APP_PORT }}/health"
