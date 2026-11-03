@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useAuth } from '../../application/auth/AuthProvider';
 import { useStartSession } from '../../application/hooks/useStartSession';
 import { useTodaySession } from '../../application/hooks/useTodaySession';
 import { errorMessage } from '../../domain/errors';
@@ -14,7 +13,6 @@ const cards = (n: number) => `${n} new ${n === 1 ? 'card' : 'cards'}`;
 
 export function TodayScreen() {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
   const today = useTodaySession();
   const start = useStartSession();
   const [skipNew, setSkipNew] = useState(false);
@@ -63,7 +61,6 @@ export function TodayScreen() {
       ) : null}
       <Button variant="secondary" onClick={() => navigate('/add')}>Add a word</Button>
       <Button variant="secondary" onClick={() => navigate('/words')}>My words</Button>
-      <Button variant="secondary" onClick={() => void signOut()}>Sign out</Button>
     </AppShell>
   );
 }

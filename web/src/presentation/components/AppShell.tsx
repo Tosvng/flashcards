@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { Link } from 'react-router';
+import { UserMenu } from './UserMenu';
 
 interface Props {
   title: string;
@@ -24,6 +25,7 @@ export function AppShell({ title, backTo, centered = false, children }: Props) {
             </svg>
           </Link> : null}
         <h1>{title}</h1>
+        <UserMenu />
       </header>
       <main className={`app-main${centered ? ' centered' : ''}`}>{children}</main>
     </div>

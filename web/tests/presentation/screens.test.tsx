@@ -103,7 +103,9 @@ describe('TodayScreen', () => {
     const services = createFakeServices();
     await services.tokenStore.set('t');
     open(services);
-    await userEvent.setup().click(await screen.findByRole('button', { name: 'Sign out' }));
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole('button', { name: 'Account menu' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Sign out' }));
     await waitFor(async () => expect(await services.tokenStore.get()).toBeNull());
   });
 

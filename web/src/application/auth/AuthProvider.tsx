@@ -67,3 +67,8 @@ export function useAuth(): AuthApi {
   if (!value) throw new Error('useAuth must be used inside <AuthProvider>');
   return value;
 }
+
+/** Like useAuth, but returns null outside an <AuthProvider> (e.g. isolated component renders). */
+export function useOptionalAuth(): AuthApi | null {
+  return useContext(AuthContext);
+}

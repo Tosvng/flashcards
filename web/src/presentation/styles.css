@@ -77,6 +77,24 @@ input { caret-color: var(--ink); }
   min-height: calc(var(--touch) + 16px + env(safe-area-inset-top));
   background: var(--canvas);
 }
+.user-menu { position: relative; margin-left: auto; }
+.user-menu-trigger {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--touch); height: var(--touch); padding: 0;
+  color: var(--ink); background: var(--surface); border: 0; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--line); cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+.user-menu-trigger:active { transform: scale(0.94); }
+.user-menu-list {
+  position: absolute; top: calc(100% + 8px); right: 0; min-width: 160px; padding: 6px;
+  background: var(--surface); border-radius: var(--radius-box); box-shadow: var(--card-shadow), inset 0 0 0 1px var(--line);
+}
+.user-menu-item {
+  display: block; width: 100%; min-height: var(--touch); padding: 0 14px; text-align: left;
+  font: inherit; color: var(--ink); background: none; border: 0; border-radius: 10px; cursor: pointer;
+}
+.user-menu-item:hover, .user-menu-item:focus-visible { background: var(--tint); }
 .app-header h1 { margin: 0; font-size: 1.0625rem; font-weight: 650; letter-spacing: -0.01em; }
 .back-link {
   display: inline-flex; align-items: center; justify-content: center;
