@@ -4,7 +4,7 @@ import { useAuth } from '../../application/auth/AuthProvider';
 import { useStartSession } from '../../application/hooks/useStartSession';
 import { useTodaySession } from '../../application/hooks/useTodaySession';
 import { errorMessage } from '../../domain/errors';
-import { levelsLabel, sessionHeadline } from '../../domain/sessionLabels';
+import { sessionHeadline } from '../../domain/sessionLabels';
 import { AppShell } from '../components/AppShell';
 import { Button } from '../components/Button';
 import { CatchUpNotice } from '../components/CatchUpNotice';
@@ -33,30 +33,40 @@ export function TodayScreen() {
     if (started && started.status !== 'complete') navigate('/review');
   }
 
+  const total = s.levelCounts.reduce((sum, l) => sum + l.count, 0);
+  const levelWord = s.levelCounts.length === 1 ? 'level' : 'levels';
+
   return (
     <AppShell title="Flashcards">
-      <h2 className="title">{sessionHeadline(s)}</h2>
+      <div className="today-head">
+        <h2 className="title">{sessionHeadline(s)}</h2>
+        <p className="muted">
+          {complete
+            ? "You have finished today's review. See you tomorrow!"
+            : total === 0
+              ? 'Nothing to review yet'
+              : `${total} ${total === 1 ? 'word' : 'words'} to review across ${s.levelCounts.length} ${levelWord}`}
+        </p>
+      </div>
 
-      {complete ? (
-        <p className="muted">You have finished today's review. See you tomorrow!</p>
-      ) : (
-        <div className="facts">
-          <p className="big">{levelsLabel(s.levelsDue)}</p>
-          <p className="muted">
+      {!complete ? (
+        <>
+          {s.levelCounts.length > 0 ? (
+            <ul className="plan" aria-label="Words to review per level">
+              {s.levelCounts.map(({ level, count }) => (
+                <li key={level} className={count === 0 ? 'empty' : undefined}>
+                  <span className="plan-level">Level {level}</span>
+                  <span className="plan-count">
+                    <strong>{count}</strong> {count === 1 ? 'word' : 'words'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <p className="muted small">
             {s.started ? `${cards(s.newCardsAdded)} added today` : s.skipNewCards ? 'No new cards today' : `${cards(s.newCardsAdded)} will be added`}
           </p>
-        </div>
-      )}
-
-      {!complete && s.levelCounts.length > 0 ? (
-        <ul className="level-counts" aria-label="Words to review per level">
-          {s.levelCounts.map(({ level, count }) => (
-            <li key={level}>
-              <span>Level {level}</span>
-              <span>{count} {count === 1 ? 'word' : 'words'}</span>
-            </li>
-          ))}
-        </ul>
+        </>
       ) : null}
 
       {!s.started && s.isCatchUp ? <CatchUpNotice levelsDue={s.levelsDue} skipNewCards={skipNew} onChangeSkip={setSkipNew} /> : null}
@@ -67,14 +77,18 @@ export function TodayScreen() {
 
       {start.isError ? <p role="alert" className="error">{errorMessage(start.error)}</p> : null}
 
-      {!complete ? (
-        <Button loading={start.isPending} onClick={inProgress ? () => navigate('/review') : () => void begin()}>
-          {inProgress ? 'Continue reviewing' : 'Start review'}
-        </Button>
-      ) : null}
-      <Button variant="secondary" onClick={() => navigate('/add')}>Add a word</Button>
-      <Button variant="secondary" onClick={() => navigate('/words')}>My words</Button>
-      <Button variant="secondary" onClick={() => void signOut()}>Sign out</Button>
+      <div className="today-actions">
+        {!complete ? (
+          <Button loading={start.isPending} onClick={inProgress ? () => navigate('/review') : () => void begin()}>
+            {inProgress ? 'Continue reviewing' : 'Start review'}
+          </Button>
+        ) : null}
+        <div className="action-pair">
+          <Button variant="secondary" onClick={() => navigate('/add')}>Add a word</Button>
+          <Button variant="secondary" onClick={() => navigate('/words')}>My words</Button>
+        </div>
+        <Button variant="quiet" onClick={() => void signOut()}>Sign out</Button>
+      </div>
     </AppShell>
   );
 }

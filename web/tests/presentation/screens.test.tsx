@@ -34,7 +34,7 @@ describe('TodayScreen', () => {
     const services = createFakeServices();
     open(services);
     expect(await screen.findByRole('heading', { name: 'Day 1' })).toBeInTheDocument();
-    expect(screen.getByText('Levels 2 · 1')).toBeInTheDocument();
+    expect(screen.getByText('4 words to review across 2 levels')).toBeInTheDocument();
     expect(screen.getByText('10 new cards will be added')).toBeInTheDocument();
     expect(screen.queryByText('You missed a day')).not.toBeInTheDocument();
 

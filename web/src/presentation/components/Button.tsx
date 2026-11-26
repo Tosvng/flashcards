@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes } from 'react';
 
 interface Props extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'quiet';
   /** Defaults to 'button' so a button inside a form never submits by accident. */
   type?: 'button' | 'submit';
   loading?: boolean;
@@ -11,7 +11,7 @@ export function Button({ variant = 'primary', type = 'button', loading = false, 
   return (
     <button
       type={type}
-      className={['btn', variant === 'secondary' ? 'secondary' : '', className ?? ''].filter(Boolean).join(' ')}
+      className={['btn', variant === 'primary' ? '' : variant, className ?? ''].filter(Boolean).join(' ')}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
