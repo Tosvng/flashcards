@@ -7,12 +7,19 @@ import type { DeckService } from './DeckService.js';
 import type { NewCardIntroducer } from './NewCardIntroducer.js';
 import type { TodayResolver } from './TodayResolver.js';
 
+export interface LevelCount {
+  level: Level;
+  count: number;
+}
+
 export interface SessionSummary {
   /** False for a read-only preview of a session that has not been started yet. */
   started: boolean;
   sessionDate: IsoDate;
   cycleDay: number;
   levelsDue: Level[];
+  /** Words currently waiting in each due level (a preview counts the new cards Level 1 will receive). */
+  levelCounts: LevelCount[];
   isCatchUp: boolean;
   /** Cards actually added today (started) or that would be added (preview). */
   newCardsAdded: number;
@@ -36,7 +43,7 @@ export class SessionService {
   preview(userId: number): SessionSummary {
     const { today, settings } = this.todayResolver.resolve(userId);
     const existing = this.sessions.findByDate(userId, today);
-    if (existing) return this.summarize(existing, true);
+    if (existing) return this.summarize(userId, existing, true);
 
     const due = this.dueFor(userId, settings, today);
     const newCards = Math.min(settings.newCardsPerDay, this.cardStates.countInPool(userId));
@@ -47,6 +54,7 @@ export class SessionService {
       sessionDate: today,
       cycleDay: due.cycleDay,
       levelsDue: due.levels,
+      levelCounts: this.countsFor(userId, due.levels, newCards),
       isCatchUp: due.isCatchUp,
       newCardsAdded: newCards,
       skipNewCards: false,
@@ -60,7 +68,7 @@ export class SessionService {
     return this.uow.run(() => {
       const { today, settings } = this.todayResolver.resolve(userId);
       const existing = this.sessions.findByDate(userId, today);
-      if (existing) return this.summarize(existing, true);
+      if (existing) return this.summarize(userId, existing, true);
 
       const due = this.dueFor(userId, settings, today);
       const draft: DailySession = {
@@ -76,7 +84,7 @@ export class SessionService {
       };
       draft.newCardsAdded = this.introducer.introduce(userId, draft, settings);
       this.sessions.create(userId, draft);
-      return this.summarize(this.deck.advanceIfEmpty(userId, draft), true);
+      return this.summarize(userId, this.deck.advanceIfEmpty(userId, draft), true);
     });
   }
 
@@ -87,12 +95,20 @@ export class SessionService {
     return this.scheduler.levelsDue(start, last?.sessionDate ?? null, today);
   }
 
-  private summarize(s: DailySession, started: boolean): SessionSummary {
+  private countsFor(userId: number, levels: Level[], pendingNewCards = 0): LevelCount[] {
+    return levels.map((level) => ({
+      level,
+      count: this.cardStates.countByLevel(userId, level) + (level === 1 ? pendingNewCards : 0),
+    }));
+  }
+
+  private summarize(userId: number, s: DailySession, started: boolean): SessionSummary {
     return {
       started,
       sessionDate: s.sessionDate,
       cycleDay: s.cycleDay,
       levelsDue: s.levelsDue,
+      levelCounts: this.countsFor(userId, s.levelsDue),
       isCatchUp: s.isCatchUp,
       newCardsAdded: s.newCardsAdded,
       skipNewCards: s.skipNewCards,

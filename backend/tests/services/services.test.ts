@@ -10,6 +10,7 @@ describe('daily session: days 1-3 walkthrough', () => {
     w.goToDay(1);
     const d1 = w.session.start(1, false);
     expect(d1).toMatchObject({ cycleDay: 1, levelsDue: [2, 1], newCardsAdded: 10, currentLevel: 1, isCatchUp: false });
+    expect(d1.levelCounts).toEqual([{ level: 2, count: 0 }, { level: 1, count: 10 }]);
     w.passAll();
     expect(w.cardStates.countByLevel(1, 2)).toBe(10);
     expect(w.cardStates.countByLevel(1, 1)).toBe(0);

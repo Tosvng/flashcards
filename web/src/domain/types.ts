@@ -5,12 +5,19 @@ export type CardLevel = Level | 8;
 
 export type SessionStatus = 'not_started' | 'in_progress' | 'complete';
 
+export interface LevelCount {
+  level: Level;
+  count: number;
+}
+
 export interface SessionSummary {
   /** False for a read-only preview of a session that has not been started. */
   started: boolean;
   sessionDate: string;
   cycleDay: number;
   levelsDue: Level[];
+  /** Words waiting in each due level. */
+  levelCounts: LevelCount[];
   isCatchUp: boolean;
   newCardsAdded: number;
   skipNewCards: boolean;

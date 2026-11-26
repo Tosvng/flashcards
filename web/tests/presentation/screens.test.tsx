@@ -43,6 +43,14 @@ describe('TodayScreen', () => {
     expect(services.session.start).toHaveBeenCalledWith(false);
   });
 
+  it('shows how many words are waiting in each due level', async () => {
+    const services = createFakeServices();
+    open(services);
+    const list = await screen.findByRole('list', { name: 'Words to review per level' });
+    expect(list).toHaveTextContent('Level 23 words');
+    expect(list).toHaveTextContent('Level 11 word');
+  });
+
   it('offers to skip new cards on a catch-up day and sends the choice', async () => {
     const services = createFakeServices();
     (services.session.today as Mock).mockResolvedValue(summary({ isCatchUp: true, levelsDue: [6, 3, 2, 1], cycleDay: 59 }));

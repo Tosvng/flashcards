@@ -48,6 +48,17 @@ export function TodayScreen() {
         </div>
       )}
 
+      {!complete && s.levelCounts.length > 0 ? (
+        <ul className="level-counts" aria-label="Words to review per level">
+          {s.levelCounts.map(({ level, count }) => (
+            <li key={level}>
+              <span>Level {level}</span>
+              <span>{count} {count === 1 ? 'word' : 'words'}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       {!s.started && s.isCatchUp ? <CatchUpNotice levelsDue={s.levelsDue} skipNewCards={skipNew} onChangeSkip={setSkipNew} /> : null}
 
       {!s.started && s.newCardsAdded === 0 ? (

@@ -100,6 +100,9 @@ h2.title { margin: 0; font-size: 2.25rem; line-height: 1.08; font-weight: 750; l
 .muted { color: var(--muted); }
 .small { font-size: 0.875rem; }
 .facts p { margin: 0; }
+.level-counts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.level-counts li { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+.level-counts li span:last-child { color: var(--muted); }
 .facts .big { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.015em; }
 
 /* ---- controls (font-size >= 16px so iOS does not zoom the page on focus) ---- */
