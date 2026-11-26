@@ -120,7 +120,7 @@ describe('reviewReducer', () => {
 
 describe('sessionLabels', () => {
   const summary: SessionSummary = {
-    started: false, sessionDate: '2026-01-01', cycleDay: 59, levelsDue: [6, 3, 2, 1], isCatchUp: true,
+    started: false, sessionDate: '2026-01-01', cycleDay: 59, levelsDue: [6, 3, 2, 1], levelCounts: [], isCatchUp: true,
     newCardsAdded: 10, skipNewCards: false, currentLevel: 6, status: 'not_started',
   };
   it('labels levels', () => {

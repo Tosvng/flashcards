@@ -15,7 +15,7 @@ import type {
 } from '../../src/domain/types';
 
 export const summary = (over: Partial<SessionSummary> = {}): SessionSummary => ({
-  started: false, sessionDate: '2026-01-01', cycleDay: 1, levelsDue: [2, 1], isCatchUp: false,
+  started: false, sessionDate: '2026-01-01', cycleDay: 1, levelsDue: [2, 1], levelCounts: [{ level: 2, count: 3 }, { level: 1, count: 1 }], isCatchUp: false,
   newCardsAdded: 10, skipNewCards: false, currentLevel: 1, status: 'not_started', ...over,
 });
 

@@ -117,8 +117,20 @@ input { caret-color: var(--ink); }
 h2.title { margin: 0; font-size: 2.25rem; line-height: 1.08; font-weight: 750; letter-spacing: -0.035em; text-wrap: balance; }
 .muted { color: var(--muted); }
 .small { font-size: 0.875rem; }
-.facts p { margin: 0; }
-.facts .big { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.015em; }
+/* ---- today ---- */
+.today-head { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+.today-head p { margin: 0; font-size: 1.0625rem; text-wrap: balance; }
+.plan { list-style: none; margin: 0; padding: 4px 20px; background: var(--surface); border-radius: var(--radius-card); }
+.plan li { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; min-height: 64px; padding: 14px 0; font-variant-numeric: tabular-nums; }
+.plan li + li { border-top: 1px solid var(--line); }
+.plan-level { font-size: 1.0625rem; font-weight: 650; letter-spacing: -0.01em; }
+.plan-count { color: var(--muted); font-size: 0.9375rem; }
+.plan-count strong { color: var(--ink); font-size: 1.75rem; font-weight: 750; letter-spacing: -0.03em; margin-right: 2px; }
+.plan li.empty .plan-count strong { color: var(--muted); font-weight: 600; }
+.today-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.action-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.action-pair .btn { padding: 0 12px; }
+@media (max-width: 600px) { .today-actions { margin-top: auto; padding-top: 12px; } }
 
 /* ---- controls (font-size >= 16px so iOS does not zoom the page on focus) ---- */
 .btn {

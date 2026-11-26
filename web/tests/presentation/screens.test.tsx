@@ -34,13 +34,21 @@ describe('TodayScreen', () => {
     const services = createFakeServices();
     open(services);
     expect(await screen.findByRole('heading', { name: 'Day 1' })).toBeInTheDocument();
-    expect(screen.getByText('Levels 2 · 1')).toBeInTheDocument();
+    expect(screen.getByText('4 words to review across 2 levels')).toBeInTheDocument();
     expect(screen.getByText('10 new cards will be added')).toBeInTheDocument();
     expect(screen.queryByText('You missed a day')).not.toBeInTheDocument();
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Start review' }));
     expect(await screen.findByText('PAGE /review')).toBeInTheDocument();
     expect(services.session.start).toHaveBeenCalledWith(false);
+  });
+
+  it('shows how many words are waiting in each due level', async () => {
+    const services = createFakeServices();
+    open(services);
+    const list = await screen.findByRole('list', { name: 'Words to review per level' });
+    expect(list).toHaveTextContent('Level 23 words');
+    expect(list).toHaveTextContent('Level 11 word');
   });
 
   it('offers to skip new cards on a catch-up day and sends the choice', async () => {
