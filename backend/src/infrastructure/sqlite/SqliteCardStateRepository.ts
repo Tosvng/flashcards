@@ -63,11 +63,14 @@ export class SqliteCardStateRepository implements CardStateRepository {
     return this.db
       .prepare(
         `INSERT INTO card_state (user_id, flashcard_id, level, introduced_on, last_reviewed_on, deck_position)
-         SELECT :user, f.flashcard_id, 1, :date, NULL, :base + ROW_NUMBER() OVER (ORDER BY f.sort_order, f.flashcard_id)
-         FROM flashcards f
-         WHERE ${VISIBLE_AND_UNSEEN}
-         ORDER BY f.sort_order, f.flashcard_id
-         LIMIT :limit`,
+         SELECT :user, picked.flashcard_id, 1, :date, NULL, :base + ROW_NUMBER() OVER (ORDER BY RANDOM())
+         FROM (
+           SELECT f.flashcard_id
+           FROM flashcards f
+           WHERE ${VISIBLE_AND_UNSEEN}
+           ORDER BY RANDOM()
+           LIMIT :limit
+         ) picked`,
       )
       .run({ user: userId, date, base, limit }).changes;
   }
