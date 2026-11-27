@@ -26,7 +26,7 @@ describe('useReviewFlow (one card)', () => {
     const { result } = await renderHook(() => useReviewFlow(deckCard(1, 'été')), { wrapper });
     await type(result, 'été');
     await act(async () => { await result.current.submitSpelling(); });
-    expect(result.current.state).toMatchObject({ phase: 'revealed', reveal: { correctSpelling: 'été', phoneticSpelling: '/ete/', spellingCorrect: true } });
+    expect(result.current.state).toMatchObject({ phase: 'revealed', reveal: { correctSpelling: 'été', phoneticSpelling: '/ete/', backText: null, spellingCorrect: true } });
 
     await act(async () => { await result.current.markPronunciation(true); });
     expect(result.current.state).toMatchObject({ phase: 'result', result: { passed: true, newLevel: 2 } });
@@ -166,7 +166,7 @@ describe('useAddFlashcard', () => {
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
     const { result } = await renderHook(() => useAddFlashcard(), { wrapper });
     await act(async () => {
-      await result.current.mutateAsync({ frenchText: 'a', englishTranslation: 'b', photoUrl: 'https://x.co', description: 'd', phoneticSpelling: null });
+      await result.current.mutateAsync({ frenchText: 'a', englishTranslation: 'b', photoUrl: 'https://x.co', description: 'd', phoneticSpelling: null, backText: null });
     });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: keys.session });
   });
@@ -178,7 +178,7 @@ describe('useAddFlashcard', () => {
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
     const { result } = await renderHook(() => useAddFlashcard(), { wrapper });
     await act(async () => {
-      await result.current.mutateAsync({ frenchText: 'a', englishTranslation: 'b', photoUrl: 'https://x.co', description: 'd', phoneticSpelling: null }).catch(() => undefined);
+      await result.current.mutateAsync({ frenchText: 'a', englishTranslation: 'b', photoUrl: 'https://x.co', description: 'd', phoneticSpelling: null, backText: null }).catch(() => undefined);
     });
     expect(invalidate).not.toHaveBeenCalled();
   });

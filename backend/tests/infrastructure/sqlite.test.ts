@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ConflictError } from '../../src/domain/errors.js';
 import type { DailySession } from '../../src/domain/types.js';
 import { openDatabase, runMigrations, type Db } from '../../src/infrastructure/sqlite/database.js';
+import { MIGRATIONS } from '../../src/infrastructure/sqlite/migrations.js';
 import { SqliteCardStateRepository } from '../../src/infrastructure/sqlite/SqliteCardStateRepository.js';
 import { SqliteFlashcardRepository } from '../../src/infrastructure/sqlite/SqliteFlashcardRepository.js';
 import { SqliteReviewLogRepository } from '../../src/infrastructure/sqlite/SqliteReviewLogRepository.js';
@@ -18,7 +19,7 @@ let u1: number;
 let u2: number;
 
 const card = (word: string) => ({
-  frenchText: word, englishTranslation: word, photoUrl: 'u', description: 'd', phoneticSpelling: null,
+  frenchText: word, englishTranslation: word, photoUrl: 'u', description: 'd', phoneticSpelling: null, backText: null,
 });
 
 function addShared(word: string, sortOrder: number) {
@@ -41,7 +42,7 @@ describe('migrations', () => {
   it('are idempotent', () => {
     runMigrations(db);
     runMigrations(db);
-    expect((db.prepare('SELECT COUNT(*) AS n FROM schema_version').get() as { n: number }).n).toBe(1);
+    expect((db.prepare('SELECT COUNT(*) AS n FROM schema_version').get() as { n: number }).n).toBe(MIGRATIONS.length);
   });
 });
 

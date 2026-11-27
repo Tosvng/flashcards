@@ -112,7 +112,7 @@ describe('LetterInput', () => {
 });
 
 describe('AnswerReveal', () => {
-  const reveal = { spellingCorrect: false, correctSpelling: 'été', phoneticSpelling: '/ete/' };
+  const reveal = { spellingCorrect: false, correctSpelling: 'été', phoneticSpelling: '/ete/', backText: null };
 
   it('shows the answer, phonetics, and a text (not colour-only) spelling verdict', () => {
     render(<AnswerReveal reveal={reveal} />);
@@ -122,7 +122,7 @@ describe('AnswerReveal', () => {
   });
 
   it('omits phonetics when the card has none, and shows an accent hint when given', () => {
-    render(<AnswerReveal reveal={{ ...reveal, phoneticSpelling: null, spellingCorrect: true }} accentHint="Watch the accent: é" />);
+    render(<AnswerReveal reveal={{ ...reveal, phoneticSpelling: null, backText: null, spellingCorrect: true }} accentHint="Watch the accent: é" />);
     expect(screen.getByText('Spelling correct')).toBeInTheDocument();
     expect(screen.queryByText('/ete/')).not.toBeInTheDocument();
     expect(screen.getByText('Watch the accent: é')).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe('AnswerReveal', () => {
 
 describe('AnswerReveal focus', () => {
   it('takes keyboard focus so it is not lost when the letter boxes become read-only', () => {
-    render(<AnswerReveal reveal={{ spellingCorrect: true, correctSpelling: 'chat', phoneticSpelling: null }} />);
+    render(<AnswerReveal reveal={{ spellingCorrect: true, correctSpelling: 'chat', phoneticSpelling: null, backText: null }} />);
     expect(screen.getByRole('region', { name: 'Answer' })).toHaveFocus();
   });
 });
@@ -150,7 +150,7 @@ describe('PronunciationPrompt', () => {
 });
 
 describe('ResultBanner', () => {
-  const result = { spellingCorrect: true, correctSpelling: 'x', phoneticSpelling: null, passed: true, newLevel: 3 as const, sessionComplete: false, currentLevel: 1 as const };
+  const result = { spellingCorrect: true, correctSpelling: 'x', phoneticSpelling: null, backText: null, passed: true, newLevel: 3 as const, sessionComplete: false, currentLevel: 1 as const };
 
   it('explains the outcome and continues', async () => {
     const onContinue = vi.fn();
@@ -224,6 +224,16 @@ describe('ReviewCard', () => {
     fireEvent.error(img);
     expect(screen.getByRole('img', { name: 'Picture could not be loaded' })).toBeInTheDocument();
     expect(screen.getByText('a small pet')).toBeInTheDocument();
+  });
+
+  it('flips to the back only when there is back text', () => {
+    const card = { photoUrl: 'https://img.example/a.png', description: 'a small pet' };
+    const { container, rerender } = render(<ReviewCard card={card} backText={null} />);
+    expect(container.querySelector('.flipped')).toBeNull();
+    expect(screen.queryByLabelText('Back of the card')).toBeNull();
+    rerender(<ReviewCard card={card} backText="le chat" />);
+    expect(container.querySelector('.flipped')).not.toBeNull();
+    expect(screen.getByLabelText('Back of the card')).toHaveTextContent('le chat');
   });
 });
 

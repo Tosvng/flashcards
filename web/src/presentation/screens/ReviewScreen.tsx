@@ -66,7 +66,7 @@ function ReviewStep({ card, level, remaining, advance }: StepProps) {
         <span className="muted" aria-label={`${remaining} cards left in this level`}>{remaining} left</span>
       </div>
 
-      <ReviewCard card={card} />
+      <ReviewCard card={card} backText={state.reveal?.backText} />
 
       <LetterInput
         slots={state.slots}

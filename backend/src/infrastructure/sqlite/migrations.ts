@@ -77,4 +77,8 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    sql: `ALTER TABLE flashcards ADD COLUMN back_text TEXT;`,
+  },
 ];

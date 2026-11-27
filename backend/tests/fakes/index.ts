@@ -56,7 +56,7 @@ export class FakeFlashcardRepository implements FlashcardRepository {
     const created: Flashcard = {
       flashcardId: this.nextId++, ownerUserId: null, sortOrder: this.cards.length + 1,
       frenchText, englishTranslation: frenchText, photoUrl: `/img/${frenchText}.png`,
-      description: `desc ${frenchText}`, phoneticSpelling: phonetic, createdAt: '2026-01-01T00:00:00.000Z',
+      description: `desc ${frenchText}`, phoneticSpelling: phonetic, backText: null, createdAt: '2026-01-01T00:00:00.000Z',
     };
     this.cards.push(created);
     return created;

@@ -10,12 +10,13 @@ export interface CardFormValues {
   photoUrl: string;
   description: string;
   phoneticSpelling: string;
+  backText: string;
 }
 type Form = CardFormValues;
 
-export const emptyCardForm: Form = { frenchText: '', englishTranslation: '', photoUrl: '', description: '', phoneticSpelling: '' };
+export const emptyCardForm: Form = { frenchText: '', englishTranslation: '', photoUrl: '', description: '', phoneticSpelling: '', backText: '' };
 
-export const toFormValues = (c: NewFlashcard): Form => ({ ...c, phoneticSpelling: c.phoneticSpelling ?? '' });
+export const toFormValues = (c: NewFlashcard): Form => ({ ...c, phoneticSpelling: c.phoneticSpelling ?? '', backText: c.backText ?? '' });
 
 export function validateCard(f: Form): Partial<Record<keyof Form, string>> {
   const errors: Partial<Record<keyof Form, string>> = {};
@@ -63,6 +64,7 @@ export function CardForm({ initial = emptyCardForm, submitLabel, pending, error,
       photoUrl: form.photoUrl.trim(),
       description: form.description.trim(),
       phoneticSpelling: form.phoneticSpelling.trim() || null,
+      backText: form.backText.trim() || null,
     };
     try {
       await onSubmit(card);
@@ -83,6 +85,7 @@ export function CardForm({ initial = emptyCardForm, submitLabel, pending, error,
       <TextField label="Description (without the word)" value={form.description} onChange={set('description')} multiline error={show('description')} />
       <TextField label="Image link" type="url" value={form.photoUrl} onChange={set('photoUrl')} autoCapitalize="none" inputMode="url" error={show('photoUrl')} />
       <TextField label="Phonetic spelling (optional)" value={form.phoneticSpelling} onChange={set('phoneticSpelling')} autoCapitalize="none" />
+      <TextField label="Back of the card (optional)" value={form.backText} onChange={set('backText')} multiline />
       {error ? <p role="alert" className="error">{errorMessage(error)}</p> : null}
       {notice}
       <Button type="submit" loading={pending}>{submitLabel}</Button>

@@ -18,6 +18,7 @@ export interface Flashcard {
   photoUrl: string;
   description: string;
   phoneticSpelling: string | null;
+  backText: string | null;
   createdAt: string;
 }
 

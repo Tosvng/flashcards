@@ -320,7 +320,7 @@ describe('AddCardScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Add word' }));
     expect(await screen.findByText(/Added "chat"/)).toBeInTheDocument();
     expect(services.flashcards.add).toHaveBeenCalledWith({
-      frenchText: 'chat', englishTranslation: 'cat', photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: null,
+      frenchText: 'chat', englishTranslation: 'cat', photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: null, backText: null,
     });
     expect(screen.getByLabelText('French word')).toHaveValue('');
   });
@@ -340,7 +340,7 @@ describe('AddCardScreen', () => {
 describe('MyWordsScreen and EditCardScreen', () => {
   const chat = {
     flashcardId: 5, ownerUserId: 1, sortOrder: 1, createdAt: '', frenchText: 'chat', englishTranslation: 'cat',
-    photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: '/ʃa/',
+    photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: '/ʃa/', backText: null,
   };
 
   it('lists the user\'s words and shows an empty state', async () => {
@@ -400,7 +400,7 @@ describe('MyWordsScreen and EditCardScreen', () => {
     await user.click(screen.getByRole('button', { name: 'Save changes' }));
     expect(await screen.findByText('PAGE /words')).toBeInTheDocument();
     expect(services.flashcards.update).toHaveBeenCalledWith(5, {
-      frenchText: 'chaton', englishTranslation: 'cat', photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: '/ʃa/',
+      frenchText: 'chaton', englishTranslation: 'cat', photoUrl: 'https://img.example/cat.png', description: 'a small pet', phoneticSpelling: '/ʃa/', backText: null,
     });
   });
 

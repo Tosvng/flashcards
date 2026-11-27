@@ -183,7 +183,7 @@ describe('review rules through the service', () => {
     w.session.start(1, false);
     const before = JSON.stringify(w.cardStates.listByLevel(1, 1));
     expect(w.review.reveal(1, { flashcardId: 1, spellingInput: ' MOT1 ' })).toEqual({
-      spellingCorrect: true, correctSpelling: 'mot1', phoneticSpelling: '/mo1/',
+      spellingCorrect: true, correctSpelling: 'mot1', phoneticSpelling: '/mo1/', backText: null,
     });
     expect(w.review.reveal(1, { flashcardId: 1, spellingInput: 'mot' }).spellingCorrect).toBe(false);
     expect(JSON.stringify(w.cardStates.listByLevel(1, 1))).toBe(before);
@@ -252,7 +252,7 @@ describe('multi-user isolation', () => {
     const w = buildWorld(0);
     w.settings.initialize(2, '2026-01-01', 'UTC');
     const mine = w.flashcardService.add(1, {
-      frenchText: 'secret', englishTranslation: 's', photoUrl: 'u', description: 'd', phoneticSpelling: null,
+      frenchText: 'secret', englishTranslation: 's', photoUrl: 'u', description: 'd', phoneticSpelling: null, backText: null,
     });
     expect(w.flashcardService.get(1, mine.flashcardId).frenchText).toBe('secret');
     expect(() => w.flashcardService.get(2, mine.flashcardId)).toThrow(NotFoundError);

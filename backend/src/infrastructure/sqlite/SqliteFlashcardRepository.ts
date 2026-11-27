@@ -11,6 +11,7 @@ interface Row {
   photo_url: string;
   description: string;
   phonetic_spelling: string | null;
+  back_text: string | null;
   created_at: string;
 }
 
@@ -23,6 +24,7 @@ const toFlashcard = (r: Row): Flashcard => ({
   photoUrl: r.photo_url,
   description: r.description,
   phoneticSpelling: r.phonetic_spelling,
+  backText: r.back_text,
   createdAt: r.created_at,
 });
 
@@ -49,10 +51,10 @@ export class SqliteFlashcardRepository implements FlashcardRepository {
     const id = Number(
       this.db
         .prepare(
-          `INSERT INTO flashcards (owner_user_id, sort_order, french_text, english_translation, photo_url, description, phonetic_spelling)
-           VALUES (?, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM flashcards), ?, ?, ?, ?, ?)`,
+          `INSERT INTO flashcards (owner_user_id, sort_order, french_text, english_translation, photo_url, description, phonetic_spelling, back_text)
+           VALUES (?, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM flashcards), ?, ?, ?, ?, ?, ?)`,
         )
-        .run(userId, card.frenchText, card.englishTranslation, card.photoUrl, card.description, card.phoneticSpelling).lastInsertRowid,
+        .run(userId, card.frenchText, card.englishTranslation, card.photoUrl, card.description, card.phoneticSpelling, card.backText).lastInsertRowid,
     );
     return this.findVisible(userId, id)!;
   }
@@ -67,10 +69,10 @@ export class SqliteFlashcardRepository implements FlashcardRepository {
   update(userId: number, flashcardId: number, card: NewFlashcard): Flashcard | null {
     const { changes } = this.db
       .prepare(
-        `UPDATE flashcards SET french_text = ?, english_translation = ?, photo_url = ?, description = ?, phonetic_spelling = ?
+        `UPDATE flashcards SET french_text = ?, english_translation = ?, photo_url = ?, description = ?, phonetic_spelling = ?, back_text = ?
          WHERE flashcard_id = ? AND owner_user_id = ?`,
       )
-      .run(card.frenchText, card.englishTranslation, card.photoUrl, card.description, card.phoneticSpelling, flashcardId, userId);
+      .run(card.frenchText, card.englishTranslation, card.photoUrl, card.description, card.phoneticSpelling, card.backText, flashcardId, userId);
     return changes > 0 ? this.findVisible(userId, flashcardId) : null;
   }
 }

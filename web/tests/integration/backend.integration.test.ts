@@ -18,7 +18,7 @@ suite('mobile data layer ↔ real backend', () => {
   const email = `it-${Date.now()}@example.com`;
   // The description must not contain the word, or the "answer is not in the deck" check below is meaningless.
   const card = (frenchText: string, description: string, phoneticSpelling: string | null) => ({
-    frenchText, englishTranslation: `translation of ${description}`, photoUrl: 'https://img.example/x.png', description, phoneticSpelling,
+    frenchText, englishTranslation: `translation of ${description}`, photoUrl: 'https://img.example/x.png', description, phoneticSpelling, backText: null,
   });
 
   it('rejects unauthenticated calls, without signalling a session expiry', async () => {
