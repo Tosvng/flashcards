@@ -6,7 +6,7 @@ import { ApiError, errorMessage, isUnauthorized, NetworkError } from '../../src/
 import type { DeckCard, ReviewResult, SessionSummary } from '../../src/domain/types';
 
 const card: DeckCard = { flashcardId: 7, photoUrl: 'u', description: 'd', letterCount: 3 };
-const reveal = { spellingCorrect: true, correctSpelling: 'été', phoneticSpelling: '/ete/' };
+const reveal = { spellingCorrect: true, correctSpelling: 'été', phoneticSpelling: '/ete/', backText: null };
 const result: ReviewResult = { ...reveal, passed: true, newLevel: 2, sessionComplete: false, currentLevel: 1 };
 
 const run = (state: ReviewState, ...events: ReviewEvent[]) => events.reduce(reviewReducer, state);

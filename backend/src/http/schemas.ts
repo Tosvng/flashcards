@@ -43,6 +43,7 @@ export const createFlashcardBody = z.object({
   photoUrl: z.url().max(2000),
   description: text,
   phoneticSpelling: z.string().trim().min(1).max(200).nullable().default(null),
+  backText: z.string().trim().min(1).max(1000).nullable().default(null),
 });
 
 export const idParams = z.object({

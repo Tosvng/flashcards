@@ -213,6 +213,14 @@ h2.title { margin: 0; font-size: 2.25rem; line-height: 1.08; font-weight: 750; l
 .card figcaption { padding: 0 8px 8px; font-size: 1.1875rem; line-height: 1.35; font-weight: 500; letter-spacing: -0.01em; text-wrap: balance; }
 @media (max-height: 700px) { .card img { max-height: 150px; } .card-media { min-height: 120px; } }
 
+.card-flip { display: grid; perspective: 1000px; }
+.card-flip > .card { grid-area: 1 / 1; backface-visibility: hidden; transition: transform 0.5s ease; }
+.card-flip .card-back { transform: rotateY(-180deg); justify-content: center; align-items: center; text-align: center; min-height: 100%; }
+.card-flip.flipped .card-front { transform: rotateY(180deg); }
+.card-flip.flipped .card-back { transform: rotateY(0); }
+.card-back figcaption { white-space: pre-wrap; padding: 16px 8px; }
+@media (prefers-reduced-motion: reduce) { .card-flip > .card { transition: none; } }
+
 .letters { display: flex; flex-wrap: wrap; gap: 10px 8px; justify-content: center; }
 .letter-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .letter {

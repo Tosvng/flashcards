@@ -112,7 +112,7 @@ describe('daily session flow', () => {
 
     // Reveal: judges spelling and returns the answer + phonetics, but does not change anything.
     const reveal = await request(app).post('/api/review/reveal').set(auth(token)).send({ flashcardId: 3, spellingInput: 'mot3' });
-    expect(reveal.body).toEqual({ spellingCorrect: true, correctSpelling: 'mot3', phoneticSpelling: '/mo3/' });
+    expect(reveal.body).toEqual({ spellingCorrect: true, correctSpelling: 'mot3', phoneticSpelling: '/mo3/', backText: null });
     expect((await request(app).get('/api/decks/daily').set(auth(token))).body.cards.map((c: { flashcardId: number }) => c.flashcardId)).toContain(3);
     expect((await request(app).post('/api/review/reveal').send({ flashcardId: 3, spellingInput: 'x' })).status).toBe(401);
     expect((await request(app).post('/api/review/reveal').set(auth(token)).send({ flashcardId: 3 })).status).toBe(400);
@@ -174,7 +174,9 @@ describe('flashcards & isolation', () => {
 
     const created = await request(app).post('/api/flashcards').set(auth(a)).send(body);
     expect(created.status).toBe(201);
-    expect(created.body).toMatchObject({ frenchText: 'chat', phoneticSpelling: null });
+    expect(created.body).toMatchObject({ frenchText: 'chat', phoneticSpelling: null, backText: null });
+    const withBack = await request(app).post('/api/flashcards').set(auth(a)).send({ ...body, backText: 'le chat = cat' });
+    expect(withBack.body.backText).toBe('le chat = cat');
     const id = created.body.flashcardId;
 
     expect((await request(app).get(`/api/flashcards/${id}`).set(auth(a))).status).toBe(200);

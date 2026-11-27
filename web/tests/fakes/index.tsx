@@ -51,6 +51,7 @@ export class FakeBackend implements DeckGateway, ReviewGateway {
       spellingCorrect: input.spellingInput.trim().toLowerCase() === w.word.toLowerCase(),
       correctSpelling: w.word,
       phoneticSpelling: w.phonetic,
+      backText: null,
     };
   }
 
@@ -87,9 +88,9 @@ export function createFakeServices(over: Partial<Services> = {}): FakeServices {
     session,
     deck: { current: vi.fn(async () => ({ sessionComplete: true, level: null, cards: [] })) },
     review: {
-      reveal: vi.fn(async () => ({ spellingCorrect: true, correctSpelling: 'x', phoneticSpelling: null })),
+      reveal: vi.fn(async () => ({ spellingCorrect: true, correctSpelling: 'x', phoneticSpelling: null, backText: null })),
       submit: vi.fn(async () => ({
-        spellingCorrect: true, correctSpelling: 'x', phoneticSpelling: null,
+        spellingCorrect: true, correctSpelling: 'x', phoneticSpelling: null, backText: null,
         passed: true, newLevel: 2 as const, sessionComplete: true, currentLevel: null,
       })),
     },

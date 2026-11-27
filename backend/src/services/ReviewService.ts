@@ -16,6 +16,7 @@ export interface ReviewResult {
   spellingCorrect: boolean;
   correctSpelling: string;
   phoneticSpelling: string | null;
+  backText: string | null;
   newLevel: CardLevel;
   sessionComplete: boolean;
   currentLevel: Level | null;
@@ -30,6 +31,7 @@ export interface RevealResult {
   spellingCorrect: boolean;
   correctSpelling: string;
   phoneticSpelling: string | null;
+  backText: string | null;
 }
 
 export class ReviewService {
@@ -56,6 +58,7 @@ export class ReviewService {
       spellingCorrect: this.judge.isCorrect(input.spellingInput, card.frenchText),
       correctSpelling: card.frenchText,
       phoneticSpelling: card.phoneticSpelling,
+      backText: card.backText,
     };
   }
 
@@ -87,6 +90,7 @@ export class ReviewService {
         spellingCorrect,
         correctSpelling: card.frenchText,
         phoneticSpelling: card.phoneticSpelling,
+        backText: card.backText,
         newLevel,
         sessionComplete: updated.status === 'complete',
         currentLevel: updated.currentLevel,

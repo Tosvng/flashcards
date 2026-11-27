@@ -47,6 +47,7 @@ export interface RevealResult {
   spellingCorrect: boolean;
   correctSpelling: string;
   phoneticSpelling: string | null;
+  backText: string | null;
 }
 
 export interface ReviewInput extends RevealInput {
@@ -66,6 +67,7 @@ export interface NewFlashcard {
   photoUrl: string;
   description: string;
   phoneticSpelling: string | null;
+  backText: string | null;
 }
 
 export interface Flashcard extends NewFlashcard {

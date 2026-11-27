@@ -143,7 +143,7 @@ describe('API classes hit the right endpoints', () => {
     expect(mocks.post).toHaveBeenCalledWith('/api/review', { flashcardId: 1, spellingInput: 'x', pronunciationCorrect: true });
   });
   it('FlashcardApi', async () => {
-    const card = { frenchText: 'a', englishTranslation: 'b', photoUrl: 'https://x.co', description: 'd', phoneticSpelling: null };
+    const card = { frenchText: 'a', englishTranslation: 'b', photoUrl: 'https://x.co', description: 'd', phoneticSpelling: null, backText: null };
     await new FlashcardApi(http).add(card);
     expect(mocks.post).toHaveBeenCalledWith('/api/flashcards', card);
     await new FlashcardApi(http).listMine();
