@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useLoadMoreCards } from '../../application/hooks/useLoadMoreCards';
 import { useStartSession } from '../../application/hooks/useStartSession';
 import { useTodaySession } from '../../application/hooks/useTodaySession';
 import { errorMessage } from '../../domain/errors';
@@ -15,6 +16,7 @@ export function TodayScreen() {
   const navigate = useNavigate();
   const today = useTodaySession();
   const start = useStartSession();
+  const more = useLoadMoreCards();
   const [skipNew, setSkipNew] = useState(false);
 
   if (today.isPending) return <AppShell title="Flashcards"><LoadingView label="Loading today's session…" /></AppShell>;
@@ -29,6 +31,11 @@ export function TodayScreen() {
   async function begin() {
     const started = await start.mutateAsync(skipNew).catch(() => null);
     if (started && started.status !== 'complete') navigate('/review');
+  }
+
+  async function loadMore() {
+    const reopened = await more.mutateAsync().catch(() => null);
+    if (reopened) navigate('/review');
   }
 
   const total = s.levelCounts.reduce((sum, l) => sum + l.count, 0);
@@ -73,6 +80,7 @@ export function TodayScreen() {
         <p className="muted small">You have no new words waiting. Add your own words to keep learning.</p>
       ) : null}
 
+      {more.isError ? <p role="alert" className="error">{errorMessage(more.error)}</p> : null}
       {start.isError ? <p role="alert" className="error">{errorMessage(start.error)}</p> : null}
 
       <div className="today-actions">
@@ -80,7 +88,9 @@ export function TodayScreen() {
           <Button loading={start.isPending} onClick={inProgress ? () => navigate('/review') : () => void begin()}>
             {inProgress ? 'Continue reviewing' : 'Start review'}
           </Button>
-        ) : null}
+        ) : (
+          <Button loading={more.isPending} onClick={() => void loadMore()}>Load more new cards</Button>
+        )}
         <div className="action-pair">
           <Button variant="secondary" onClick={() => navigate('/add')}>Add a word</Button>
           <Button variant="secondary" onClick={() => navigate('/words')}>My words</Button>

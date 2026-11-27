@@ -28,6 +28,7 @@ export function buildRouter(c: Controllers, tokens: TokenService): Router {
   router.use(authenticate(tokens));
   router.get('/session/today', c.session.today);
   router.post('/session/start', validate({ body: startSessionBody }), c.session.start);
+  router.post('/session/more', c.session.loadMore);
   router.get('/decks/daily', c.deck.daily);
   router.post('/review/reveal', validate({ body: revealBody }), c.review.reveal);
   router.post('/review', validate({ body: reviewBody }), c.review.submit);

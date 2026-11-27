@@ -100,6 +100,30 @@ describe('session start', () => {
   });
 });
 
+describe('load more cards', () => {
+  it('reopens a completed session with another Level 1 batch, reviewing only Level 1', () => {
+    const w = buildWorld(25);
+    w.session.start(1, false);
+    w.passAll();
+    const r = w.session.loadMore(1);
+    expect(r).toMatchObject({ status: 'in_progress', currentLevel: 1, levelsDue: [1], newCardsAdded: 20 });
+    expect(r.levelCounts).toEqual([{ level: 1, count: 10 }]);
+    w.passAll();
+    expect(w.session.preview(1).status).toBe('complete');
+    // Cards promoted to Level 2 by the extra batch are not re-served today.
+    expect(w.deck.currentDeck(1).sessionComplete).toBe(true);
+  });
+
+  it('is refused while the review is unfinished, before starting, or when the pool is empty', () => {
+    const w = buildWorld(10);
+    expect(() => w.session.loadMore(1)).toThrow(NotFoundError);
+    w.session.start(1, false);
+    expect(() => w.session.loadMore(1)).toThrow(ValidationError);
+    w.passAll();
+    expect(() => w.session.loadMore(1)).toThrow(ValidationError);
+  });
+});
+
 describe('review rules through the service', () => {
   it('re-serves a failed Level 1 card until it passes', () => {
     const w = buildWorld(10);

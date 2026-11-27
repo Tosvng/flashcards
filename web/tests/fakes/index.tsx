@@ -77,6 +77,7 @@ export function createFakeServices(over: Partial<Services> = {}): FakeServices {
   const session: SessionGateway = {
     today: vi.fn(async () => summary()),
     start: vi.fn(async (skip: boolean) => summary({ started: true, status: 'in_progress', skipNewCards: skip })),
+    loadMore: vi.fn(async () => summary({ started: true, status: 'in_progress', currentLevel: 1 })),
   };
   const services: FakeServices = {
     auth: {

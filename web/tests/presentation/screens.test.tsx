@@ -79,6 +79,15 @@ describe('TodayScreen', () => {
     expect(screen.queryByRole('button', { name: 'Start review' })).not.toBeInTheDocument();
   });
 
+  it('loads another batch of new cards once the day is complete', async () => {
+    const services = createFakeServices();
+    (services.session.today as Mock).mockResolvedValue(summary({ started: true, status: 'complete', currentLevel: null }));
+    open(services);
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Load more new cards' }));
+    expect(services.session.loadMore).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('PAGE /review')).toBeInTheDocument();
+  });
+
   it('stays on the page when starting finds nothing to review', async () => {
     const services = createFakeServices();
     (services.session.today as Mock).mockResolvedValue(summary({ newCardsAdded: 0 }));
