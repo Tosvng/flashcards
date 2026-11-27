@@ -1,3 +1,4 @@
+import { NotFoundError, ValidationError } from '../domain/errors.js';
 import type { LevelScheduler } from '../domain/LevelScheduler.js';
 import type { DailySession, IsoDate, Level, UserSettings } from '../domain/types.js';
 import type { CardStateRepository } from '../ports/CardStateRepository.js';
@@ -85,6 +86,34 @@ export class SessionService {
       draft.newCardsAdded = this.introducer.introduce(userId, draft, settings);
       this.sessions.create(userId, draft);
       return this.summarize(userId, this.deck.advanceIfEmpty(userId, draft), true);
+    });
+  }
+
+  /**
+   * Extra volume: once today's review is complete, pulls another batch from the New pool into Level 1
+   * and reopens the session for just that level (higher levels were already done today, and cards
+   * promoted out of Level 1 must not be re-served).
+   */
+  loadMore(userId: number): SessionSummary {
+    return this.uow.run(() => {
+      const { today, settings } = this.todayResolver.resolve(userId);
+      const session = this.sessions.findByDate(userId, today);
+      if (!session) throw new NotFoundError("Today's session has not been started");
+      if (session.status !== 'complete') throw new ValidationError("Finish today's review before loading more cards");
+
+      const added = this.cardStates.introduceFromPool(userId, settings.newCardsPerDay, today);
+      if (added === 0) throw new ValidationError('No new cards left to load');
+
+      const reopened: DailySession = {
+        ...session,
+        levelsDue: [1],
+        currentLevel: 1,
+        newCardsAdded: session.newCardsAdded + added,
+        status: 'in_progress',
+        completedAt: null,
+      };
+      this.sessions.update(userId, reopened);
+      return this.summarize(userId, reopened, true);
     });
   }
 

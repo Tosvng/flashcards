@@ -14,4 +14,9 @@ export class SessionController {
     const { skipNewCards } = req.body as { skipNewCards: boolean };
     res.json(this.sessions.start(userIdOf(req), skipNewCards));
   };
+
+  /** Reopens a completed session with another batch of Level 1 cards. */
+  loadMore = (req: Request, res: Response): void => {
+    res.json(this.sessions.loadMore(userIdOf(req)));
+  };
 }

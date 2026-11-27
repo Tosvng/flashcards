@@ -12,4 +12,8 @@ export class SessionApi implements SessionGateway {
   start(skipNewCards: boolean): Promise<SessionSummary> {
     return this.http.post('/api/session/start', { skipNewCards });
   }
+
+  loadMore(): Promise<SessionSummary> {
+    return this.http.post('/api/session/more', {});
+  }
 }
