@@ -102,23 +102,24 @@ describe('daily session flow', () => {
 
     const deck = (await request(app).get('/api/decks/daily').set(auth(token))).body;
     expect(deck.cards).toHaveLength(10);
-    expect(deck.cards[0]).toEqual({ flashcardId: 1, photoUrl: 'https://img/1.png', description: 'description 1', letterCount: 4 });
-    expect(JSON.stringify(deck)).not.toContain('mot1'); // the answer is never sent
+    const [c1, c2, c3] = deck.cards.map((c: { flashcardId: number }) => c.flashcardId) as number[];
+    expect(deck.cards[0]).toEqual({ flashcardId: c1, photoUrl: `https://img/${c1}.png`, description: `description ${c1}`, letterCount: `mot${c1}`.length });
+    expect(JSON.stringify(deck)).not.toContain(`mot${c1}"`); // the answer is never sent
 
     // Wrong spelling: fails, card stays at level 1 and goes to the back.
-    const wrong = await request(app).post('/api/review').set(auth(token)).send({ flashcardId: 1, spellingInput: 'mot', pronunciationCorrect: true });
-    expect(wrong.body).toMatchObject({ passed: false, spellingCorrect: false, correctSpelling: 'mot1', phoneticSpelling: '/mo1/', newLevel: 1 });
-    expect((await request(app).get('/api/decks/daily').set(auth(token))).body.cards.at(-1).flashcardId).toBe(1);
+    const wrong = await request(app).post('/api/review').set(auth(token)).send({ flashcardId: c1, spellingInput: 'mot', pronunciationCorrect: true });
+    expect(wrong.body).toMatchObject({ passed: false, spellingCorrect: false, correctSpelling: `mot${c1}`, phoneticSpelling: `/mo${c1}/`, newLevel: 1 });
+    expect((await request(app).get('/api/decks/daily').set(auth(token))).body.cards.at(-1).flashcardId).toBe(c1);
 
     // Reveal: judges spelling and returns the answer + phonetics, but does not change anything.
-    const reveal = await request(app).post('/api/review/reveal').set(auth(token)).send({ flashcardId: 3, spellingInput: 'mot3' });
-    expect(reveal.body).toEqual({ spellingCorrect: true, correctSpelling: 'mot3', phoneticSpelling: '/mo3/', backText: null });
-    expect((await request(app).get('/api/decks/daily').set(auth(token))).body.cards.map((c: { flashcardId: number }) => c.flashcardId)).toContain(3);
+    const reveal = await request(app).post('/api/review/reveal').set(auth(token)).send({ flashcardId: c3, spellingInput: `mot${c3}` });
+    expect(reveal.body).toEqual({ spellingCorrect: true, correctSpelling: `mot${c3}`, phoneticSpelling: `/mo${c3}/`, backText: null });
+    expect((await request(app).get('/api/decks/daily').set(auth(token))).body.cards.map((c: { flashcardId: number }) => c.flashcardId)).toContain(c3);
     expect((await request(app).post('/api/review/reveal').send({ flashcardId: 3, spellingInput: 'x' })).status).toBe(401);
     expect((await request(app).post('/api/review/reveal').set(auth(token)).send({ flashcardId: 3 })).status).toBe(400);
 
     // Right spelling but pronunciation wrong: still fails.
-    const noPron = await request(app).post('/api/review').set(auth(token)).send({ flashcardId: 2, spellingInput: 'MOT2', pronunciationCorrect: false });
+    const noPron = await request(app).post('/api/review').set(auth(token)).send({ flashcardId: c2, spellingInput: `MOT${c2}`, pronunciationCorrect: false });
     expect(noPron.body).toMatchObject({ passed: false, spellingCorrect: true });
 
     await passDeck(token);
@@ -127,7 +128,7 @@ describe('daily session flow', () => {
     expect((await request(app).get('/api/decks/daily').set(auth(token))).body).toEqual({ sessionComplete: true, level: null, cards: [] });
 
     // Reviewing after completion is rejected.
-    expect((await request(app).post('/api/review').set(auth(token)).send({ flashcardId: 1, spellingInput: 'mot1', pronunciationCorrect: true })).status).toBe(400);
+    expect((await request(app).post('/api/review').set(auth(token)).send({ flashcardId: c1, spellingInput: `mot${c1}`, pronunciationCorrect: true })).status).toBe(400);
   });
 
   it('is idempotent: starting twice adds new cards once', async () => {
@@ -212,7 +213,9 @@ describe('flashcards & isolation', () => {
       expect((await request(app).post('/api/review').set(auth(token)).send(bad)).status).toBe(400);
     }
     // Card that exists but is not in the level being reviewed -> 400/404, never 500.
-    const unknown = await request(app).post('/api/review').set(auth(token)).send({ flashcardId: 11, spellingInput: 'a', pronunciationCorrect: true });
+    const inDeck = new Set((await request(app).get('/api/decks/daily').set(auth(token))).body.cards.map((c: { flashcardId: number }) => c.flashcardId));
+    const outside = [...Array(25).keys()].map((i) => i + 1).find((id) => !inDeck.has(id));
+    const unknown = await request(app).post('/api/review').set(auth(token)).send({ flashcardId: outside, spellingInput: 'a', pronunciationCorrect: true });
     expect(unknown.status).toBe(404);
   });
 });

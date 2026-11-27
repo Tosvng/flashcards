@@ -83,16 +83,28 @@ describe('SqliteCardStateRepository', () => {
     for (let i = 1; i <= 25; i++) addShared(`w${i}`, i);
   });
 
-  it('introduces cards from the pool in sort order, limited, once', () => {
+  it('introduces random cards from the pool, limited, without repeats', () => {
     expect(states.countInPool(u1)).toBe(25);
     expect(states.introduceFromPool(u1, 10, '2026-01-01')).toBe(10);
-    const deck = states.listByLevel(u1, 1);
-    expect(deck.map((s) => s.flashcardId)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    const first = states.listByLevel(u1, 1).map((s) => s.flashcardId);
+    expect(new Set(first).size).toBe(10);
     expect(states.countInPool(u1)).toBe(15);
     expect(states.introduceFromPool(u1, 10, '2026-01-02')).toBe(10);
-    expect(states.listByLevel(u1, 1).map((s) => s.flashcardId).slice(10)).toEqual([11, 12, 13, 14, 15, 16, 17, 18, 19, 20]);
+    const second = states.listByLevel(u1, 1).map((s) => s.flashcardId).slice(10);
+    expect(new Set([...first, ...second]).size).toBe(20);
     expect(states.introduceFromPool(u1, 10, '2026-01-03')).toBe(5);
     expect(states.introduceFromPool(u1, 10, '2026-01-04')).toBe(0);
+    expect(states.countInPool(u1)).toBe(0);
+  });
+
+  it('does not introduce cards in sort order', () => {
+    const orders = new Set<string>();
+    for (let i = 0; i < 5; i++) {
+      states.introduceFromPool(u1, 10, '2026-01-01');
+      orders.add(states.listByLevel(u1, 1).map((s) => s.flashcardId).join(','));
+      db.prepare('DELETE FROM card_state WHERE user_id = ?').run(u1);
+    }
+    expect(orders.size).toBeGreaterThan(1);
   });
 
   it('keeps users independent', () => {
@@ -100,7 +112,7 @@ describe('SqliteCardStateRepository', () => {
     expect(states.countByLevel(u2, 1)).toBe(0);
     expect(states.countInPool(u2)).toBe(25);
     expect(states.introduceFromPool(u2, 3, '2026-01-01')).toBe(3);
-    expect(states.listByLevel(u2, 1).map((s) => s.flashcardId)).toEqual([1, 2, 3]);
+    expect(states.listByLevel(u2, 1).map((s) => s.flashcardId)).toHaveLength(3);
   });
 
   it('includes a user\'s private cards in their pool only', () => {
@@ -111,19 +123,23 @@ describe('SqliteCardStateRepository', () => {
 
   it('saves levels and moves cards to the back', () => {
     states.introduceFromPool(u1, 3, '2026-01-01');
-    states.moveToBack(u1, 1);
-    expect(states.listByLevel(u1, 1).map((s) => s.flashcardId)).toEqual([2, 3, 1]);
-    states.save(u1, 2, 3, '2026-01-02');
-    expect(states.get(u1, 2)).toMatchObject({ level: 3, lastReviewedOn: '2026-01-02' });
+    const [a, b, c] = states.listByLevel(u1, 1).map((s) => s.flashcardId) as [number, number, number];
+    states.moveToBack(u1, a);
+    expect(states.listByLevel(u1, 1).map((s) => s.flashcardId)).toEqual([b, c, a]);
+    states.save(u1, b, 3, '2026-01-02');
+    expect(states.get(u1, b)).toMatchObject({ level: 3, lastReviewedOn: '2026-01-02' });
     expect(states.countByLevel(u1, 3)).toBe(1);
-    expect(states.get(u2, 2)).toBeNull();
+    expect(states.get(u2, b)).toBeNull();
   });
 
   it('places newly introduced cards after existing deck positions', () => {
     states.introduceFromPool(u1, 2, '2026-01-01');
-    states.moveToBack(u1, 1);
+    const [a, b] = states.listByLevel(u1, 1).map((s) => s.flashcardId) as [number, number];
+    states.moveToBack(u1, a);
     states.introduceFromPool(u1, 2, '2026-01-02');
-    expect(states.listByLevel(u1, 1).map((s) => s.flashcardId)).toEqual([2, 1, 3, 4]);
+    const ids = states.listByLevel(u1, 1).map((s) => s.flashcardId);
+    expect(ids.slice(0, 2)).toEqual([b, a]);
+    expect(ids).toHaveLength(4);
   });
 });
 
